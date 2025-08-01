@@ -1,10 +1,34 @@
-const ImagePreview = () => {
+import { useEffect, useState } from "react";
+interface ImagePreviewProps {
+  image: File;
+}
+
+const ImagePreview = ({ image }: ImagePreviewProps) => {
+  const [previewImg, setPreviewImg] = useState<string>("");
+
+  useEffect(() => {
+    const reader = new FileReader();
+    reader.readAsDataURL(image);
+    reader.onloadend = () => {
+      if (typeof reader.result === "string") {
+        setPreviewImg(reader.result);
+      } else {
+        alert("이미지를 읽는 데 실패했습니다.");
+        console.warn("unexpected type from FileReader:", reader.result);
+        setPreviewImg("");
+      }
+    };
+  }, [image]);
+
   return (
-    <img 
-      src={"/img_dummy.png"} 
-      alt={"이미지 미리보기"} 
-      style={{ width: '100%', aspectRatio: '4/3', objectFit: 'cover' }}
-    />
+    <div className="w-full">
+      <img
+        src={previewImg ? previewImg : "/img_dummy.png"}
+        alt={image.name}
+        className="w-full aspect-[4/3] object-cover"
+      />
+      <p>{image.name}</p>
+    </div>
   );
 };
 
