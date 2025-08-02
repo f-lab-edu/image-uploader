@@ -1,5 +1,5 @@
 import Button, { type ButtonProps } from "../common/button";
-import DeleteIcon from "../../assets/delete-icon.svg?react";
+import DeleteIcon from "../../assets/icon-delete.svg?react";
 
 type DeleteButtonProps = Omit<ButtonProps, "icon">;
 
