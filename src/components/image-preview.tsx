@@ -29,7 +29,7 @@ const ImagePreview = ({ image }: ImagePreviewProps) => {
       {image ? (
         <>
           <img
-            src={previewImg ? previewImg : "/img_dummy.png"}
+            src={previewImg}
             alt={image.name}
             className="w-full aspect-[4/3] object-cover"
           />
