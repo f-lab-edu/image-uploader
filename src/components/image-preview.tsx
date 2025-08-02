@@ -13,7 +13,7 @@ const ImagePreview = ({ image }: ImagePreviewProps) => {
             alt={image.name}
             className="w-full aspect-[4/3] object-cover"
           />
-          <p>{image.name}</p>
+          <p className="text-gray-500 text-sm">{image.name}</p>
         </>
       ) : (
         <div className="w-full aspect-[4/3] bg-gray-200 flex justify-center items-center">

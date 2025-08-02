@@ -11,9 +11,9 @@ export interface ButtonProps {
   icon: React.ReactElement;
 }
 
-const Button = ({ onClick, size = "md", icon }: ButtonProps) => {
+const Button = ({ onClick, size = "sm", icon }: ButtonProps) => {
   return (
-    <button onClick={onClick} className={`hover:text-indigo-600`}>
+    <button onClick={onClick} className={`text-gray-400 hover:text-gray-600`}>
       <icon.type width={BUTTON_SIZE[size]} height={BUTTON_SIZE[size]} />
     </button>
   );
