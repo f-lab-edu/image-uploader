@@ -5,15 +5,24 @@ import UploadedImageList from "./components/uploaded-image-list";
 import ImagePreview from "./components/image-preview";
 
 function App() {
-  const [previewImg, setPreviewImg] = useState<File | null>(null);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [selectedPreviewIdx, setSelectedPreviewIdx] = useState<number>(-1);
 
-  const handleSelectPreviewImage = (value: File | null) => {
-    setPreviewImg(value);
+  const handleSelectPreviewImage = (idx: number) => {
+    setSelectedPreviewIdx(idx);
   };
 
   const handleUploadImages = (images: File[]) => {
     setUploadedFiles([...uploadedFiles, ...images]);
+  };
+
+  const handleDeleteImages = (idx: number) => {
+    if (idx === selectedPreviewIdx) {
+      setSelectedPreviewIdx(-1);
+    }
+
+    const newUploadedFiles = uploadedFiles.filter((_, i) => i !== idx);
+    setUploadedFiles(newUploadedFiles);
   };
 
   return (
@@ -26,6 +35,7 @@ function App() {
         <UploadedImageList
           images={uploadedFiles}
           onSelectImage={handleSelectPreviewImage}
+          onDeleteImage={handleDeleteImages}
         />
       </div>
       <ImagePreview image={previewImg} />
