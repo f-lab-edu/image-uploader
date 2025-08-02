@@ -4,21 +4,21 @@ interface ImagePreviewProps {
 }
 
 const ImagePreview = ({ image }: ImagePreviewProps) => {
-  const [previewImg, setPreviewImg] = useState<string>("");
+  const [previewImgUrl, setPreviewImgUrl] = useState<string>("");
 
   useEffect(() => {
     if (image === null) {
-      setPreviewImg("");
+      setPreviewImgUrl("");
     } else {
       const reader = new FileReader();
       reader.readAsDataURL(image);
       reader.onloadend = () => {
         if (typeof reader.result === "string") {
-          setPreviewImg(reader.result);
+          setPreviewImgUrl(reader.result);
         } else {
           alert("이미지를 읽는 데 실패했습니다.");
           console.warn("unexpected type from FileReader:", reader.result);
-          setPreviewImg("");
+          setPreviewImgUrl("");
         }
       };
     }
@@ -29,7 +29,7 @@ const ImagePreview = ({ image }: ImagePreviewProps) => {
       {image ? (
         <>
           <img
-            src={previewImg}
+            src={previewImgUrl}
             alt={image.name}
             className="w-full aspect-[4/3] object-cover"
           />
