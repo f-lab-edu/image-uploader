@@ -28,10 +28,7 @@ function App() {
   return (
     <div className="w-full h-full p-20 grid grid-cols-2 gap-4">
       <div className="flex flex-col gap-4">
-        <ImageUploader
-          onUploadImages={handleUploadImages}
-          acceptedExt={["jpg", "jpeg"]}
-        />
+        <ImageUploader onUploadImages={handleUploadImages} />
         <UploadedImageList
           images={uploadedFiles}
           onSelectImage={handleSelectPreviewImage}
