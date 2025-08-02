@@ -3,16 +3,17 @@ import { useState } from "react";
 import ImageUploader from "./components/image-uploader";
 import UploadedImageList from "./components/uploaded-image-list";
 import ImagePreview from "./components/image-preview";
+import type { FileInfo } from "./types/file-types";
 
 function App() {
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<FileInfo[]>([]);
   const [selectedPreviewIdx, setSelectedPreviewIdx] = useState<number>(-1);
 
   const handleSelectPreviewImage = (idx: number) => {
     setSelectedPreviewIdx(idx);
   };
 
-  const handleUploadImages = (images: File[]) => {
+  const handleUploadImages = (images: FileInfo[]) => {
     setUploadedFiles([...uploadedFiles, ...images]);
   };
 

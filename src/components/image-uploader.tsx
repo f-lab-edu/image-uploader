@@ -1,7 +1,8 @@
 import React, { useState, useRef } from "react";
+import type { FileInfo } from "../types/file-types";
 
 interface ImageUploaderProps {
-  onUploadImages: (images: File[]) => void;
+  onUploadImages: (images: FileInfo[]) => void;
   acceptedExt?: string[];
 }
 
@@ -45,7 +46,7 @@ const ImageUploader = ({
     setIsHover(status);
   };
 
-  const handleUploadImages = (files: FileList | null) => {
+  const handleUploadImages = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
     const targetFiles = Array.from(files);
@@ -55,7 +56,64 @@ const ImageUploader = ({
       return;
     }
 
-    onUploadImages(targetFiles);
+    const result = await convertFileToBase64(targetFiles);
+
+    onUploadImages(result);
+  };
+
+  const convertFileToBase64 = async (files: File[]) => {
+    const promises = files.map((file, i) => {
+      return new Promise<FileInfo>((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onloadstart = (event) => {
+          console.log(
+            "[on start] state: ",
+            reader.readyState,
+            event.loaded,
+            event.total,
+            event.loaded / event.total
+          );
+        };
+
+        reader.onprogress = (event) => {
+          console.log(
+            "[on progress] state: ",
+            reader.readyState,
+            event.loaded,
+            event.total,
+            event.loaded / event.total
+          );
+        };
+
+        reader.onloadend = (event) => {
+          console.log(
+            "[finished] state: ",
+            reader.readyState,
+            event.loaded,
+            event.total,
+            (event.loaded / event.total) * 100
+          );
+
+          if (typeof reader.result === "string") {
+            resolve({
+              name: file.name,
+              size: file.size,
+              createdAt: new Date(),
+              url: reader.result,
+            });
+          } else {
+            reject(new Error("Unexpected result type from FileReader."));
+          }
+        };
+
+        reader.onerror = () => reject(reader.error);
+
+        reader.readAsDataURL(file);
+      });
+    });
+
+    return Promise.all(promises);
   };
 
   const validateUploadedImages = (files: File[]) => {
