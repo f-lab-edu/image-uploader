@@ -45,14 +45,25 @@ const ImageUploader = ({
   const handleUploadImages = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
-    const targetFiles = Array.from(files);
+    const originalFiles = Array.from(files);
+    const validatedFiles = validateUploadedImages(originalFiles);
 
-    if (!validateUploadedImages(targetFiles)) {
-      alert(`${acceptedExt.join(", ")} 확장자의 파일만 추가할 수 있습니다.`);
+    if (validatedFiles.length === 0) {
+      alert(
+        `${acceptedExt.join(
+          ", "
+        )} 확장자의 파일만 추가할 수 있습니다.허용된 파일이 없습니다.`
+      );
       return;
+    } else if (validatedFiles.length !== originalFiles.length) {
+      alert(
+        `${acceptedExt.join(
+          ", "
+        )} 확장자의 파일만 추가할 수 있습니다. 허용되지 않는 파일은 제거되었습니다.`
+      );
     }
 
-    const result = await convertFileToBase64(targetFiles);
+    const result = await convertFileToBase64(validatedFiles);
 
     onUploadImages(result);
   };
@@ -113,12 +124,12 @@ const ImageUploader = ({
   };
 
   const validateUploadedImages = (files: File[]) => {
-    const isExistInvalidFile = files.some((file) => {
+    const validFiles = files.filter((file) => {
       const ext = file.name.split(".").pop()?.toLowerCase() || "";
-      return !acceptedExt.includes(ext);
+      return acceptedExt.includes(ext);
     });
 
-    return !isExistInvalidFile;
+    return validFiles;
   };
 
   const clearInput = () => {
