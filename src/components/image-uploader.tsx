@@ -2,9 +2,28 @@ import React, { useState, useRef } from "react";
 
 interface ImageUploaderProps {
   onUploadImages: (images: File[]) => void;
+  acceptedExt?: string[];
 }
 
-const ImageUploader = ({ onUploadImages }: ImageUploaderProps) => {
+export const ACCEPTED_IMAGE_EXTENSIONS = [
+  "jpg",
+  "jpeg",
+  "png",
+  "gif",
+  "bmp",
+  "webp",
+  "svg",
+  "ico",
+  "tif",
+  "tiff",
+  "heic",
+  "heif",
+];
+
+const ImageUploader = ({
+  onUploadImages,
+  acceptedExt = ACCEPTED_IMAGE_EXTENSIONS,
+}: ImageUploaderProps) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [isHover, setIsHover] = useState<boolean>(false);
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
@@ -27,9 +46,25 @@ const ImageUploader = ({ onUploadImages }: ImageUploaderProps) => {
   };
 
   const handleUploadImages = (files: FileList | null) => {
-    if (files && files.length > 0) {
-      onUploadImages(Array.from(files));
+    if (!files || files.length === 0) return;
+
+    const targetFiles = Array.from(files);
+
+    if (!validateUploadedImages(targetFiles)) {
+      alert("이미지 파일만 업로드할 수 있습니다.");
+      return;
     }
+
+    onUploadImages(targetFiles);
+  };
+
+  const validateUploadedImages = (files: File[]) => {
+    const isExistInvalidFile = files.some((file) => {
+      const ext = file.name.split(".").pop()?.toLowerCase() || "";
+      return !acceptedExt.includes(ext);
+    });
+
+    return !isExistInvalidFile;
   };
 
   const clearInput = () => {
