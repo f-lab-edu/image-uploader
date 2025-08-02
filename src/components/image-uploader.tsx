@@ -1,6 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 
-const ImageUploader = () => {
+interface ImageUploaderProps {
+  onUploadImages: (images: File[]) => void;
+}
+
+const ImageUploader = ({ onUploadImages }: ImageUploaderProps) => {
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const [isHover, setIsHover] = useState<boolean>(false);
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
   const isActive = isHover || isDragOver;
@@ -19,6 +24,17 @@ const ImageUploader = () => {
   ) => {
     e.preventDefault();
     setIsHover(status);
+  };
+
+  const handleUploadImages = (files: FileList | null) => {
+    if (files && files.length > 0) {
+      onUploadImages(Array.from(files));
+    }
+  };
+
+  const clearInput = () => {
+    if (!inputRef.current) return;
+    inputRef.current.value = "";
   };
 
   return (
@@ -41,10 +57,22 @@ const ImageUploader = () => {
       }}
       onDrop={(e) => {
         handleDrag(e, false);
-        // TODO File Upload
+        handleUploadImages(e.dataTransfer.files);
       }}
     >
-      <input id="image-upload" type="file" accept="image/*" hidden multiple />
+      <input
+        id="image-upload"
+        type="file"
+        accept="image/*"
+        hidden
+        multiple
+        ref={inputRef}
+        onChange={(e) => {
+          e.preventDefault();
+          handleUploadImages(e.target.files);
+          clearInput();
+        }}
+      />
       <p className="text-lg">이미지 업로드하기</p>
       <p>+</p>
     </label>
