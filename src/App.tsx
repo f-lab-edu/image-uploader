@@ -36,7 +36,10 @@ function App() {
           onDeleteImage={handleDeleteImages}
         />
       </div>
-      <ImagePreview image={uploadedFiles[selectedPreviewIdx] || null} />
+      <ImagePreview
+        image={uploadedFiles[selectedPreviewIdx] || null}
+        onRefresh={() => handleSelectPreviewImage(-1)}
+      />
     </div>
   );
 }
