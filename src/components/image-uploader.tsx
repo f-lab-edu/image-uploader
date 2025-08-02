@@ -15,10 +15,6 @@ export const ACCEPTED_IMAGE_EXTENSIONS = [
   "webp",
   "svg",
   "ico",
-  "tif",
-  "tiff",
-  "heic",
-  "heif",
 ];
 
 const ImageUploader = ({
