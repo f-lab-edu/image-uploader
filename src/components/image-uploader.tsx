@@ -51,7 +51,7 @@ const ImageUploader = ({
     const targetFiles = Array.from(files);
 
     if (!validateUploadedImages(targetFiles)) {
-      alert("이미지 파일만 업로드할 수 있습니다.");
+      alert(`${acceptedExt.join(", ")} 확장자의 파일만 추가할 수 있습니다.`);
       return;
     }
 
