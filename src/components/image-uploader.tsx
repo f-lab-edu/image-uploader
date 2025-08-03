@@ -96,7 +96,7 @@ const ImageUploader = ({
       name: file.name,
       loadedSize: event.loaded,
       totalSize: event.total,
-      status: event.loaded === 2 ? "end" : "progress",
+      status: event.target?.readyState === 2 ? "end" : "progress",
     };
 
     const newFileUploadInfos = fileUploadInfosRef.current.map((prev, i) =>
