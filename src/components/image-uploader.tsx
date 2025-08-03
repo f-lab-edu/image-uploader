@@ -1,9 +1,7 @@
 import React, { useState, useRef } from "react";
 import type { FileInfo, FileUploadInfo } from "../types/file-types";
 import UploadImageStatusBox from "./upload-image-status-box";
-
-const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
-const TIME_SLEEP = 500;
+import { sleep } from "../utils/sleep";
 
 interface ImageUploaderProps {
   onUploadImages: (images: FileInfo[]) => void;
@@ -80,14 +78,14 @@ const ImageUploader = ({
 
     try {
       const result = await convertFileToBase64(validatedFiles);
-      await sleep(TIME_SLEEP);
+      await sleep(500);
       onUploadImages(result);
     } finally {
       setFileUploadInfos([]);
     }
   };
 
-  const updateFileUploadStatus = (
+  const updateFileUploadStatus = async (
     event: ProgressEvent<FileReader>,
     file: File,
     index: number
@@ -103,6 +101,7 @@ const ImageUploader = ({
       i === index ? newUploadInfo : prev
     );
     fileUploadInfosRef.current = newFileUploadInfos;
+    await sleep(200);
     setFileUploadInfos(newFileUploadInfos);
   };
 
@@ -114,8 +113,9 @@ const ImageUploader = ({
         reader.onloadstart = async (event) =>
           await updateFileUploadStatus(event, file, i);
 
-        reader.onprogress = async (event) =>
+        reader.onprogress = async (event) => {
           await updateFileUploadStatus(event, file, i);
+        };
 
         reader.onloadend = async (event) => {
           await updateFileUploadStatus(event, file, i);
