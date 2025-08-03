@@ -21,7 +21,7 @@ const ImagePreview = ({ image, onRefresh }: ImagePreviewProps) => {
           </div>
         </div>
       ) : (
-        <div className="w-full aspect-[4/3] bg-gray-200 flex justify-center items-center">
+        <div className="w-full aspect-[4/3] bg-gray-100 flex justify-center items-center">
           <p>미리보기 이미지를 선택해주세요.</p>
         </div>
       )}
