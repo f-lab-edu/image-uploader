@@ -1,5 +1,9 @@
 import React, { useState, useRef } from "react";
-import type { FileInfo } from "../types/file-types";
+import type { FileInfo, FileUploadInfo } from "../types/file-types";
+import UploadImageStatusBox from "./upload-image-status-box";
+
+const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
+const TIME_SLEEP = 500;
 
 interface ImageUploaderProps {
   onUploadImages: (images: FileInfo[]) => void;
@@ -22,6 +26,9 @@ const ImageUploader = ({
   acceptedExt = ACCEPTED_IMAGE_EXTENSIONS,
 }: ImageUploaderProps) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const fileUploadInfosRef = useRef<FileUploadInfo[]>([]);
+  const [fileUploadInfos, setFileUploadInfos] = useState<FileUploadInfo[]>([]);
+
   const [isHover, setIsHover] = useState<boolean>(false);
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
   const isActive = isHover || isDragOver;
@@ -63,9 +70,40 @@ const ImageUploader = ({
       );
     }
 
-    const result = await convertFileToBase64(validatedFiles);
+    fileUploadInfosRef.current = validatedFiles.map((file) => ({
+      name: file.name,
+      loadedSize: 0,
+      totalSize: file.size,
+      status: "progress",
+    }));
+    setFileUploadInfos([...fileUploadInfosRef.current]);
 
-    onUploadImages(result);
+    try {
+      const result = await convertFileToBase64(validatedFiles);
+      await sleep(TIME_SLEEP);
+      onUploadImages(result);
+    } finally {
+      setFileUploadInfos([]);
+    }
+  };
+
+  const updateFileUploadStatus = (
+    event: ProgressEvent<FileReader>,
+    file: File,
+    index: number
+  ) => {
+    const newUploadInfo: FileUploadInfo = {
+      name: file.name,
+      loadedSize: event.loaded,
+      totalSize: event.total,
+      status: event.loaded === 2 ? "end" : "progress",
+    };
+
+    const newFileUploadInfos = fileUploadInfosRef.current.map((prev, i) =>
+      i === index ? newUploadInfo : prev
+    );
+    fileUploadInfosRef.current = newFileUploadInfos;
+    setFileUploadInfos(newFileUploadInfos);
   };
 
   const convertFileToBase64 = async (files: File[]) => {
@@ -73,34 +111,14 @@ const ImageUploader = ({
       return new Promise<FileInfo>((resolve, reject) => {
         const reader = new FileReader();
 
-        reader.onloadstart = (event) => {
-          console.log(
-            "[on start] state: ",
-            reader.readyState,
-            event.loaded,
-            event.total,
-            event.loaded / event.total
-          );
-        };
+        reader.onloadstart = async (event) =>
+          await updateFileUploadStatus(event, file, i);
 
-        reader.onprogress = (event) => {
-          console.log(
-            "[on progress] state: ",
-            reader.readyState,
-            event.loaded,
-            event.total,
-            event.loaded / event.total
-          );
-        };
+        reader.onprogress = async (event) =>
+          await updateFileUploadStatus(event, file, i);
 
-        reader.onloadend = (event) => {
-          console.log(
-            "[finished] state: ",
-            reader.readyState,
-            event.loaded,
-            event.total,
-            (event.loaded / event.total) * 100
-          );
+        reader.onloadend = async (event) => {
+          await updateFileUploadStatus(event, file, i);
 
           if (typeof reader.result === "string") {
             resolve({
@@ -138,44 +156,54 @@ const ImageUploader = ({
   };
 
   return (
-    <label
-      htmlFor="image-upload"
-      className={`p-16 bg-gray-100 rounded-md w-full h-64 cursor-pointer transition-colors duration-300 ease-in-out flex flex-col justify-center items-center gap-1 ${
-        isActive && "bg-indigo-200"
-      }`}
-      onMouseEnter={(e) => {
-        handleHover(e, true);
-      }}
-      onMouseLeave={(e) => {
-        handleHover(e, false);
-      }}
-      onDragOver={(e) => {
-        handleDrag(e, true);
-      }}
-      onDragLeave={(e) => {
-        handleDrag(e, false);
-      }}
-      onDrop={(e) => {
-        handleDrag(e, false);
-        handleUploadImages(e.dataTransfer.files);
-      }}
-    >
-      <input
-        id="image-upload"
-        type="file"
-        accept="image/*"
-        hidden
-        multiple
-        ref={inputRef}
-        onChange={(e) => {
-          e.preventDefault();
-          handleUploadImages(e.target.files);
-          clearInput();
+    <>
+      <label
+        htmlFor="image-upload"
+        className={`p-16 bg-gray-100 rounded-md w-full h-64 cursor-pointer transition-colors duration-300 ease-in-out flex flex-col justify-center items-center gap-1 ${
+          isActive && "bg-indigo-200"
+        }`}
+        onMouseEnter={(e) => {
+          handleHover(e, true);
         }}
-      />
-      <p className="text-lg">이미지 업로드하기</p>
-      <p>+</p>
-    </label>
+        onMouseLeave={(e) => {
+          handleHover(e, false);
+        }}
+        onDragOver={(e) => {
+          handleDrag(e, true);
+        }}
+        onDragLeave={(e) => {
+          handleDrag(e, false);
+        }}
+        onDrop={(e) => {
+          handleDrag(e, false);
+          handleUploadImages(e.dataTransfer.files);
+        }}
+      >
+        <input
+          id="image-upload"
+          type="file"
+          accept="image/*"
+          hidden
+          multiple
+          ref={inputRef}
+          onChange={(e) => {
+            e.preventDefault();
+            handleUploadImages(e.target.files);
+            clearInput();
+          }}
+        />
+        <p className="text-lg">이미지 업로드하기</p>
+        <p>+</p>
+      </label>
+      <div className="fixed bottom-10 right-10 w-200 flex flex-col gap-2">
+        {fileUploadInfos?.map((file, i) => (
+          <UploadImageStatusBox
+            key={`uploading-file-${i}-${file.name}`}
+            info={file}
+          />
+        ))}
+      </div>
+    </>
   );
 };
 
