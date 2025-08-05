@@ -37,7 +37,6 @@ const ImageUploader = ({
     e: React.MouseEvent<HTMLLabelElement>,
     status: boolean
   ) => {
-    e.preventDefault();
     setIsHover(status);
   };
 
@@ -193,7 +192,6 @@ const ImageUploader = ({
           multiple
           ref={inputRef}
           onChange={(e) => {
-            e.preventDefault();
             handleImagesToConfirm(e.target.files);
             clearInput();
           }}
