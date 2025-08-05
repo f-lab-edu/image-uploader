@@ -1,7 +1,7 @@
-import Button, { type ButtonProps } from "../common/button";
+import Button, { type IconButtonProps } from "../common/icon-button";
 import DeleteIcon from "../../assets/icon-delete.svg?react";
 
-type DeleteButtonProps = Omit<ButtonProps, "icon">;
+type DeleteButtonProps = Omit<IconButtonProps, "icon">;
 
 const DeleteButton = ({ onClick, size }: DeleteButtonProps) => {
   return <Button icon={<DeleteIcon />} onClick={onClick} size={size} />;

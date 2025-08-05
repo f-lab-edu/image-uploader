@@ -3,15 +3,15 @@ const BUTTON_SIZE = {
   md: "36",
 };
 
-type ButtonSizeType = keyof typeof BUTTON_SIZE;
+type IconButtonSizeType = keyof typeof BUTTON_SIZE;
 
-export interface ButtonProps {
+export interface IconButtonProps {
   onClick: () => void;
-  size?: ButtonSizeType;
+  size?: IconButtonSizeType;
   icon: React.ReactElement;
 }
 
-const Button = ({ onClick, size = "sm", icon }: ButtonProps) => {
+const IconButton = ({ onClick, size = "sm", icon }: IconButtonProps) => {
   return (
     <button
       onClick={onClick}
@@ -22,4 +22,4 @@ const Button = ({ onClick, size = "sm", icon }: ButtonProps) => {
   );
 };
 
-export default Button;
+export default IconButton;
