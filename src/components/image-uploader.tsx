@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import type { FileInfo, FileUploadInfo } from "../types/file-types";
 import UploadImageStatusBox from "./upload-image-status-box";
+import ConfirmImageUploadDialog from "./ui/confirm-image-upload-dialog";
 import { sleep } from "../utils/sleep";
 import { ACCEPTED_IMAGE_EXTENSIONS } from "../constants";
 
@@ -21,6 +22,9 @@ const ImageUploader = ({
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
   const isActive = isHover || isDragOver;
 
+  const [filesToConfirm, setFilesToConfirm] = useState<File[]>([]);
+  const [openConfirmDialog, setOpenConfirmDialog] = useState<boolean>(false);
+
   const handleDrag = (
     e: React.DragEvent<HTMLLabelElement>,
     status: boolean
@@ -37,8 +41,15 @@ const ImageUploader = ({
     setIsHover(status);
   };
 
-  const handleUploadImages = async (files: FileList | null) => {
-    if (!files || files.length === 0) return;
+  const handleCloseConfirmDialog = () => {
+    setOpenConfirmDialog(false);
+    setFilesToConfirm([]);
+  };
+
+  const handleImagesToConfirm = (files: FileList | null) => {
+    if (!files || files.length === 0) {
+      return;
+    }
 
     const originalFiles = Array.from(files);
     const validatedFiles = validateUploadedImages(originalFiles);
@@ -47,7 +58,7 @@ const ImageUploader = ({
       alert(
         `${acceptedExt.join(
           ", "
-        )} 확장자의 파일만 추가할 수 있습니다.허용된 파일이 없습니다.`
+        )} 확장자의 파일만 추가할 수 있습니다. 허용된 파일이 없습니다.`
       );
       return;
     } else if (validatedFiles.length !== originalFiles.length) {
@@ -58,7 +69,12 @@ const ImageUploader = ({
       );
     }
 
-    fileUploadInfosRef.current = validatedFiles.map((file) => ({
+    setFilesToConfirm([...validatedFiles]);
+    setOpenConfirmDialog(true);
+  };
+
+  const handleUploadImages = async (files: File[]) => {
+    fileUploadInfosRef.current = files.map((file) => ({
       name: file.name,
       loadedSize: 0,
       totalSize: file.size,
@@ -67,7 +83,7 @@ const ImageUploader = ({
     setFileUploadInfos([...fileUploadInfosRef.current]);
 
     try {
-      const result = await convertFileToBase64(validatedFiles);
+      const result = await convertFileToBase64(files);
       await sleep(500);
       onUploadImages(result);
     } finally {
@@ -166,7 +182,7 @@ const ImageUploader = ({
         }}
         onDrop={(e) => {
           handleDrag(e, false);
-          handleUploadImages(e.dataTransfer.files);
+          handleImagesToConfirm(e.dataTransfer.files);
         }}
       >
         <input
@@ -178,7 +194,7 @@ const ImageUploader = ({
           ref={inputRef}
           onChange={(e) => {
             e.preventDefault();
-            handleUploadImages(e.target.files);
+            handleImagesToConfirm(e.target.files);
             clearInput();
           }}
         />
@@ -193,6 +209,13 @@ const ImageUploader = ({
           />
         ))}
       </div>
+      {openConfirmDialog && (
+        <ConfirmImageUploadDialog
+          files={filesToConfirm}
+          onClose={handleCloseConfirmDialog}
+          onUpload={handleUploadImages}
+        />
+      )}
     </>
   );
 };
