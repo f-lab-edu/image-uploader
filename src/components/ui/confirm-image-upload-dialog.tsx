@@ -84,7 +84,11 @@ const ConfirmImageUploadDialog = ({
                 onClick={() => selectFileToConfirm(i)}
               >
                 <div className="w-[5rem] aspect-square shrink-0">
-                  <img src={file.url} alt={file.name} />
+                  <img
+                    src={file.url}
+                    alt={file.name}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <div className="flex justify-between items-center gap-2 w-full h-full px-2">
                   <div className="flex flex-col gap-1 justify-center items-start">
