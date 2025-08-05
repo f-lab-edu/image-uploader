@@ -1,16 +1,11 @@
 import type { FileUploadInfo } from "../types/file-types";
 import Progress from "./common/progress";
-import { useEffect } from "react";
 
 interface UploadImageStatusBoxProps {
   info: FileUploadInfo;
 }
 
 const UploadImageStatusBox = ({ info }: UploadImageStatusBoxProps) => {
-  useEffect(() => {
-    console.log(info);
-  }, [info]);
-
   return (
     <div className="rounded-md bg-white border-2 border-gray-200 px-4 py-3 flex gap-2 flex-col">
       <div className="flex justify-start items-center gap-2">
