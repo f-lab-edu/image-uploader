@@ -3,7 +3,7 @@ import type { FileInfo, FileUploadInfo } from "../types/file-types";
 import UploadImageStatusBox from "./upload-image-status-box";
 import ConfirmImageUploadDialog from "./ui/confirm-image-upload-dialog";
 import { sleep } from "../utils/sleep";
-import { ACCEPTED_IMAGE_EXTENSIONS } from "../constants";
+import { ACCEPTED_IMAGE_EXTENSIONS, MAX_UPLOAD_SIZE } from "../constants";
 
 interface ImageUploaderProps {
   onUploadImages: (images: FileInfo[]) => void;
@@ -51,16 +51,16 @@ const ImageUploader = ({
     }
 
     const originalFiles = Array.from(files);
-    const validatedFiles = validateUploadedImages(originalFiles);
+    const validExtFiles = validateImagesExt(originalFiles);
 
-    if (validatedFiles.length === 0) {
+    if (validExtFiles.length === 0) {
       alert(
         `${acceptedExt.join(
           ", "
         )} 확장자의 파일만 추가할 수 있습니다. 허용된 파일이 없습니다.`
       );
       return;
-    } else if (validatedFiles.length !== originalFiles.length) {
+    } else if (validExtFiles.length !== originalFiles.length) {
       alert(
         `${acceptedExt.join(
           ", "
@@ -68,7 +68,24 @@ const ImageUploader = ({
       );
     }
 
-    setFilesToConfirm([...validatedFiles]);
+    const validSizeFiles = validateImagesSize(validExtFiles);
+
+    if (validSizeFiles.length === 0) {
+      alert(
+        `최대 ${Math.floor(
+          MAX_UPLOAD_SIZE / 1000
+        )} MB의 파일만 업로드 가능합니다. 허용된 파일이 없습니다.`
+      );
+      return;
+    } else if (validExtFiles.length !== validSizeFiles.length) {
+      alert(
+        `최대 ${Math.floor(
+          MAX_UPLOAD_SIZE / 1000
+        )} MB의 파일만 업로드 가능합니다. 허용되지 않는 파일은 제거되었습니다.`
+      );
+    }
+
+    setFilesToConfirm([...validSizeFiles]);
     setOpenConfirmDialog(true);
   };
 
@@ -146,12 +163,17 @@ const ImageUploader = ({
     return Promise.all(promises);
   };
 
-  const validateUploadedImages = (files: File[]) => {
+  const validateImagesExt = (files: File[]) => {
     const validFiles = files.filter((file) => {
       const ext = file.name.split(".").pop()?.toLowerCase() || "";
       return acceptedExt.includes(ext);
     });
 
+    return validFiles;
+  };
+
+  const validateImagesSize = (files: File[]) => {
+    const validFiles = files.filter((file) => file.size <= MAX_UPLOAD_SIZE);
     return validFiles;
   };
 
