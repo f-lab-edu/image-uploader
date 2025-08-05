@@ -2,22 +2,12 @@ import React, { useState, useRef } from "react";
 import type { FileInfo, FileUploadInfo } from "../types/file-types";
 import UploadImageStatusBox from "./upload-image-status-box";
 import { sleep } from "../utils/sleep";
+import { ACCEPTED_IMAGE_EXTENSIONS } from "../constants";
 
 interface ImageUploaderProps {
   onUploadImages: (images: FileInfo[]) => void;
   acceptedExt?: string[];
 }
-
-export const ACCEPTED_IMAGE_EXTENSIONS = [
-  "jpg",
-  "jpeg",
-  "png",
-  "gif",
-  "bmp",
-  "webp",
-  "svg",
-  "ico",
-];
 
 const ImageUploader = ({
   onUploadImages,
