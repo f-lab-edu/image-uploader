@@ -45,12 +45,9 @@ const ConfirmImageUploadDialog = ({
   };
 
   const selectFileToConfirm = (i: number) => {
-    let newSelectedFiles = [];
-    if (selectedFiles.includes(i)) {
-      newSelectedFiles = selectedFiles.filter((value) => value !== i);
-    } else {
-      newSelectedFiles = [...selectedFiles, i];
-    }
+    const newSelectedFiles = selectedFiles.includes(i)
+      ? selectedFiles.filter((value) => value !== i)
+      : [...selectedFiles, i];
     setSelectedFiles(newSelectedFiles);
   };
 
