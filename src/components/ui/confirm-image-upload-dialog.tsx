@@ -27,15 +27,25 @@ const ConfirmImageUploadDialog = ({
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onloadend = (event) => {
-        if (typeof reader.result === "string") {
-          resolve({
-            url: reader.result,
-            name: file.name,
-            size: file.size,
-            createdAt: new Date(),
-          } as FileInfo);
-        } else {
-          reject(new Error("Unexpected result type from FileReader."));
+        try {
+          if (typeof reader.result === "string") {
+            resolve({
+              url: reader.result,
+              name: file.name,
+              size: file.size,
+              createdAt: new Date(),
+            });
+          } else {
+            reject(new Error("Unexpected result type from FileReader."));
+          }
+        } catch (error: unknown) {
+          if (error instanceof Error) {
+            reject(error);
+          } else {
+            reject(
+              new Error("Unknown error occurred in FileReader onloadend.")
+            );
+          }
         }
       };
       reader.onerror = () => reject(reader.error);
