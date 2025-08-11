@@ -8,7 +8,7 @@ export const handleFileOnLoadEnd = ({
 }: {
   reader: FileReader;
   file: File;
-  onResolve: (value: FileInfo | PromiseLike<FileInfo>) => void; // 타입 정의 다시 살펴보기. 추론 개선
+  onResolve: (value: FileInfo | PromiseLike<FileInfo>) => void;
   onReject: (reason?: any) => void;
 }) => {
   try {
