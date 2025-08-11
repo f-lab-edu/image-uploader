@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Dialog from "../common/dialog";
 import type { FileInfo } from "../../types/file-types";
 import CheckIcon from "../../assets/icon-check.svg?react";
+import { handleFileOnLoadEnd } from "../../utils/file-handler";
 
 interface ConfirmImageUploadDialogProps {
   onClose: () => void;
@@ -26,27 +27,13 @@ const ConfirmImageUploadDialog = ({
   const getFileInfo = (file: File): Promise<FileInfo> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onloadend = (event) => {
-        try {
-          if (typeof reader.result === "string") {
-            resolve({
-              url: reader.result,
-              name: file.name,
-              size: file.size,
-              createdAt: new Date(),
-            });
-          } else {
-            reject(new Error("Unexpected result type from FileReader."));
-          }
-        } catch (error: unknown) {
-          if (error instanceof Error) {
-            reject(error);
-          } else {
-            reject(
-              new Error("Unknown error occurred in FileReader onloadend.")
-            );
-          }
-        }
+      reader.onloadend = () => {
+        handleFileOnLoadEnd({
+          reader,
+          file,
+          onResolve: resolve,
+          onReject: reject,
+        });
       };
       reader.onerror = () => reject(reader.error);
 

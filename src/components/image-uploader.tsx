@@ -4,6 +4,7 @@ import UploadImageStatusBox from "./upload-image-status-box";
 import ConfirmImageUploadDialog from "./ui/confirm-image-upload-dialog";
 import { sleep } from "../utils/sleep";
 import { ACCEPTED_IMAGE_EXTENSIONS, MAX_UPLOAD_SIZE } from "../constants";
+import { handleFileOnLoadEnd } from "../utils/file-handler";
 
 interface ImageUploaderProps {
   onUploadImages: (images: FileInfo[]) => void;
@@ -142,26 +143,12 @@ const ImageUploader = ({
         reader.onloadend = async (event) => {
           await updateFileUploadStatus(event, file, i);
 
-          try {
-            if (typeof reader.result === "string") {
-              resolve({
-                url: reader.result,
-                name: file.name,
-                size: file.size,
-                createdAt: new Date(),
-              });
-            } else {
-              reject(new Error("Unexpected result type from FileReader."));
-            }
-          } catch (error: unknown) {
-            if (error instanceof Error) {
-              reject(error);
-            } else {
-              reject(
-                new Error("Unknown error occurred in FileReader onloadend.")
-              );
-            }
-          }
+          handleFileOnLoadEnd({
+            reader,
+            file,
+            onResolve: resolve,
+            onReject: reject,
+          });
         };
 
         reader.onerror = () => reject(reader.error);
