@@ -74,14 +74,14 @@ const ImageUploader = ({
     if (validSizeFiles.length === 0) {
       alert(
         `최대 ${Math.floor(
-          MAX_UPLOAD_SIZE / 1000
+          MAX_UPLOAD_SIZE / 1024 / 1024
         )} MB의 파일만 업로드 가능합니다. 허용된 파일이 없습니다.`
       );
       return;
     } else if (validExtFiles.length !== validSizeFiles.length) {
       alert(
         `최대 ${Math.floor(
-          MAX_UPLOAD_SIZE / 1000
+          MAX_UPLOAD_SIZE / 1024 / 1024
         )} MB의 파일만 업로드 가능합니다. 허용되지 않는 파일은 제거되었습니다.`
       );
     }
